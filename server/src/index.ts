@@ -3,6 +3,7 @@ import pinoHttp from 'pino-http';
 import cors from 'cors';
 import env from './config/env';
 import logger from './config/logger';
+import { connectMongo } from './config/mongo';
 
 import healthRoute from './routes/health';
 import tradesRoute from './routes/trades';
@@ -21,7 +22,8 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found', path: req.path });
 });
 
-app.listen(env.port, () => {
-  logger.info({ port: env.port }, 'Server listening');
+connectMongo().then(() => {
+  app.listen(env.port, () => {
+    logger.info({ port: env.port }, 'Server listening');
+  });
 });
-
