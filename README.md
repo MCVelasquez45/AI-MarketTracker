@@ -165,3 +165,76 @@ As new endpoints and data sources (e.g., CapitolTrades, sentiment, macro) are ad
 
 MIT
 
+## Backend Architecture (Current Scaffold)
+
+This section maps a typical MERN mental model to our current TypeScript backend and shows how requests flow end‑to‑end. For canonical rules and contracts, see `AGENTS.md`.
+
+### MERN → Our Structure
+- Models (Mongoose): `server/src/models/` (placeholder; to be added with `config/mongo.ts`).
+- Controllers: `server/src/controllers/` (e.g., `tradesController.ts`).
+- Routes: `server/src/routes/` (`health.ts`, `trades.ts`, `sse.ts`).
+- Services/Utils split by responsibility:
+  - External APIs: `server/src/services/mcp-clients/polygon/*` (MCP first; REST fallback).
+  - Orchestrator: `server/src/services/orchestrator/` (compose data → output).
+  - RAG/Search: `server/src/services/rag/retriever.ts` (Atlas Vector Search).
+  - LLM: `server/src/services/llm-router/deepPath.ts` (vLLM/TGI path).
+  - Risk/Features/Evaluator: stubs under `server/src/services/*`.
+- Config/Infra: `server/src/config/` (`env.ts`, `logger.ts`; later: `mongo.ts`, `redis.ts`).
+- Types/Schemas (DTOs): `server/src/types/schemas.ts` (Zod for strict API contracts).
+- Entry point: `server/src/index.ts` (Express app, Pino logs, route mounts).
+
+### Request Flow (Recommendation example)
+1) Client calls `GET /api/trades/recommendation`.
+2) Route (`routes/trades.ts`) forwards to controller.
+3) Controller (`controllers/tradesController.ts`) validates response with Zod schema (`types/schemas.ts`).
+4) Orchestrator (`services/orchestrator/`) would:
+   - Fetch market/chain via `services/mcp-clients/polygon` (MCP server; REST fallback).
+   - Pull context via `services/rag/retriever.ts`.
+   - Use `services/llm-router/deepPath.ts` to produce JSON strictly matching §5.1 in `AGENTS.md`.
+5) Return schema‑valid JSON to the client.
+
+### Why Zod (in addition to Mongo schemas)
+- Mongoose validates persistence; Zod validates API/LLM I/O and keeps contracts backward‑compatible, independent of the database layer.
+
+### External Data: MCP vs REST
+- MCP (preferred): tool server exposing Polygon APIs → `services/mcp-clients/polygon/client.ts`.
+- REST fallback: direct HTTP for missing endpoints → `services/mcp-clients/polygon/restFallback.ts`.
+- Adapter: normalize raw responses to internal DTOs → `services/mcp-clients/polygon/adapter.ts`.
+
+### MongoDB placement
+- OLTP models live in `server/src/models/*` (to be added).
+- RAG uses Atlas Vector Search via `services/rag/retriever.ts` (separate from OLTP models).
+
+### Logging & Errors
+- Structured logs via Pino (`pino-http`) with ISO timestamps.
+- Controllers validate outputs; services return typed results; propagate errors cleanly.
+
+### Add a New Route (recipe)
+1) Create a controller in `server/src/controllers/YourFeatureController.ts`.
+2) Export handler(s) that return typed/validated JSON using Zod.
+3) Add a route file in `server/src/routes/yourFeature.ts` and mount in `src/index.ts`:
+   `app.use('/api/your-feature', yourFeatureRoute)`.
+
+### Run & cURL
+From repo root:
+
+```
+cd server && npm install && npm run dev
+
+# Health
+curl -s http://localhost:3001/health | jq
+
+# Sample recommendation (matches AGENTS.md §5.1 shape)
+curl -s http://localhost:3001/api/trades/recommendation | jq
+
+# Server-Sent Events (heartbeat)
+curl -N http://localhost:3001/api/sse/stream
+```
+
+For more, see `docs/ENDPOINTS.md`.
+
+### Next Implementation Steps
+- Wire Polygon MCP + REST fallback and normalization adapter.
+- Implement orchestrator logic for SPX 20→12 delta candidate selection.
+- Add RAG retriever (Atlas Vector Search) and vLLM deep path enforcing the JSON schema in `AGENTS.md §5.1`.
+
