@@ -1,0 +1,72 @@
+# Codex CLI configuration for AI-MarketTracker
+
+version: 1
+name: AI-MarketTracker
+description: Codex CLI rules and context; AGENTS.md is the source of truth.
+
+context:
+  - AGENTS.md
+  - README.md
+
+rules:
+  - Follow Non-Negotiables in AGENTS.md §1.
+  - Enforce directory contracts from AGENTS.md §3.
+  - All APIs must have TypeScript types or Zod schemas and remain backward-compatible.
+  - No secrets in code; use environment variables or local secret managers.
+  - All changes must update docs (README, AGENTS.md, or /docs).
+
+guardrails:
+  - Do not alter trade evaluation logic without explicit approval.
+  - Do not change GPT prompt format without explicit approval.
+  - Do not change MongoDB field structures without explicit approval.
+
+workspace:
+  root: .
+  expected_top_level:
+    - client/
+    - server/
+    - docs/
+    - AGENTS.md
+
+task_templates:
+  - title: Wire Polygon MCP + REST fallback
+    path: server/src/services/mcp-clients/polygon
+    checklist:
+      - Create client.ts calling Polygon MCP tools
+      - Add restFallback.ts for missing endpoints
+      - Add adapter.ts to normalize to DTOs
+      - Include unit tests for both paths
+  - title: Implement SPX chain fetch + delta filter
+    path: server/src/services/orchestrator
+    checklist:
+      - Fetch SPX options chain
+      - Compute deltas, select OTM 20→12
+      - Return candidate spreads with credits
+      - Check min OI and max spread width
+  - title: RAG retriever
+    path: server/src/services/rag/retriever.ts
+    checklist:
+      - Use Atlas Vector Search with filters {ticker, doc_type, date_range}
+      - topK=12 with recency bias
+      - Add tests using fixtures
+  - title: LLM deep path
+    path: server/src/services/llm-router
+    checklist:
+      - Build system+context prompt
+      - Enforce JSON schema from AGENTS.md §5.1
+      - Use vLLM OpenAI-compatible endpoint
+
+acceptance_checks:
+  - Unit tests for DTO validators and JSON schema pass
+  - Integration tests for MCP adapter and RAG pass
+  - LLM path produces valid JSON per §5.1 (no extra prose)
+  - Logs include Pino JSON with requestId and key metrics
+
+logging:
+  standard: pino
+  format: json
+
+security:
+  secrets_in_code: false
+  env_required: true
+
