@@ -165,5 +165,3 @@ As new endpoints and data sources (e.g., CapitolTrades, sentiment, macro) are ad
 
 MIT
 
-
-Would you like me to also generate a **matching `ARCHITECTURE.md`** in `/docs` that expands the diagram (services, feedback loop, data flow) so you don’t clutter the main README but still keep hedge-fund-level detail?
