@@ -8,6 +8,8 @@ import { connectMongo } from './config/mongo';
 import healthRoute from './routes/health';
 import tradesRoute from './routes/trades';
 import sseRoute from './routes/sse';
+import recommendationsRoute from './routes/recommendations';
+import ragRoute from './routes/rag';
 
 const app = express();
 app.use(cors());
@@ -17,6 +19,8 @@ app.use(pinoHttp({ logger }));
 app.use('/health', healthRoute);
 app.use('/api/trades', tradesRoute);
 app.use('/api/sse', sseRoute);
+app.use('/api/recommendations', recommendationsRoute);
+app.use('/api/rag', ragRoute);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found', path: req.path });
