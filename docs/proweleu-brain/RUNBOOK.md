@@ -81,3 +81,17 @@ curl -N -X POST http://localhost:8080/recommendation \
 - Empty RAG context: run the indexing curl to seed documents before retrieval.
 - MCP endpoints 4xx: ensure Redis is reachable and POLYGON key is set once real calls are enabled.
 
+## Index knowledge docs (strategy)
+You can index all knowledge markdown files (e.g., Zero-DTE strategy) into RAG:
+
+```
+node proweleu-brain/tools/index-knowledge.mjs
+```
+
+Then test retrieval:
+
+```
+curl -s -X POST http://localhost:8001/retrieve \
+ -H "content-type: application/json" \
+ -d '{"query":"zero dte 12-20 delta macro gate and monitoring","top_k":6}' | jq
+```
