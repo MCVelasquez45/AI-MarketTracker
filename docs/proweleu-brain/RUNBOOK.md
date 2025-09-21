@@ -127,3 +127,46 @@ curl -s -X POST http://127.0.0.1:8001/ingest \
   ]
 }' | jq
 ```
+
+## Makefile helpers
+Inside `apps/rag-service` you can use convenient make targets:
+
+```
+cd proweleu-brain/apps/rag-service
+make rag-up                    # boots FastAPI on :8001 (installs deps if needed)
+make embed DOCS=../../docs/proweleu-brain/knowledge  # batch-embed knowledge files
+make search                    # quick retrieval sanity check
+```
+
+## Atlas Vector Search index (chunks/vector)
+Ensure your Atlas index matches the stored vector field and dims:
+
+```
+DB: ai_db
+Collection: chunks
+Index name: chunks_idx
+
+{
+  "mappings": {
+    "dynamic": true,
+    "fields": {
+      "vector": {
+        "type": "knnVector",
+        "dimensions": 384,
+        "similarity": "cosine"
+      }
+    }
+  }
+}
+```
+
+Environment variables (already supported):
+
+```
+MONGODB_URI=...
+MONGO_AI_DB=ai_db
+RAG_COLL_NAME=chunks
+RAG_VECTOR_FIELD=vector
+AI_VECTOR_INDEX_NAME=chunks_idx
+AI_VECTOR_DIM=384
+```
