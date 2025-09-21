@@ -12,4 +12,6 @@ Pages
 
 Notes
 - The logo is a simple placeholder SVG (not the official mark). Replace with an approved asset in `src/App.tsx` or add `src/assets/polygon.svg` and an image tag.
-- Backend base URL can be set via `VITE_API_BASE` in `.env`.
+- Backend base URL can be set via `VITE_API_BASE` in `.env` (defaults to `http://localhost:8080` if you follow `proweleu-brain` gateway).
+- SSE endpoint (gateway): `POST /recommendation` streams responses.
+- RAG/LLM/MCP run separately if using the `proweleu-brain` microservices stack; see `docs/proweleu-brain/RUNBOOK.md`.

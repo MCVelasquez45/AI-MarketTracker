@@ -153,6 +153,59 @@ cd client && npm run dev
 
 ```
 
+### Microservices Backend (proweleu-brain) Quickstart
+
+If you prefer a backend-first microservices flow, use the `proweleu-brain` stack (Gateway + RAG + LLM + MCP):
+
+1) Copy envs: `cp proweleu-brain/ops/.env.example proweleu-brain/apps/<each-service>/.env` and fill values.
+2) Start services in separate terminals:
+
+```bash
+# RAG service
+cd proweleu-brain/apps/rag-service && python -m venv .venv && source .venv/bin/activate \
+  && pip install -r requirements.txt && uvicorn main:app --reload --port 8001
+
+# LLM service
+cd proweleu-brain/apps/llm-service && python -m venv .venv && source .venv/bin/activate \
+  && pip install -r requirements.txt && uvicorn main:app --reload --port 8002
+
+# MCP tools (stub w/ Redis cache fallback)
+cd proweleu-brain/apps/mcp-polygon && npm install && node index.js  # port 8003
+
+# API Gateway
+cd proweleu-brain/apps/api-gateway && npm install && node index.js  # port 8080
+```
+
+Quick curl checks:
+
+```bash
+# Health (gateway)
+curl -s http://localhost:8080/healthz
+
+# Index docs
+curl -s -X POST http://localhost:8001/index -H 'content-type: application/json' -d '{
+  "docs":[
+    {"doc_id":"zero-dte.md","text":"Only sell 0DTE options between 12–20 delta. Max size 5%."},
+    {"doc_id":"risk.md","text":"Stand down on FOMC/CPI days unless hedged."},
+    {"doc_id":"checklist.md","text":"Verify RSI, MACD, VWAP before entries."}
+  ],
+  "chunk_size": 400
+}'
+
+# Retrieve
+curl -s -X POST http://localhost:8001/retrieve -H 'content-type: application/json' \
+  -d '{"query":"0DTE rules delta 12-20 and event risk","top_k":6}' | jq
+
+# MCP tools
+curl -s -X POST http://localhost:8003/tool/get_indicators -H 'content-type: application/json' -d '{"ticker":"SPX"}' | jq
+
+# Recommendation (SSE)
+curl -N -X POST http://localhost:8080/recommendation -H 'content-type: application/json' \
+  -d '{"message":"Today’s 0DTE plan for SPX with delta 12–20 if no macro risk","prefetch":true}'
+```
+
+See also: `docs/proweleu-brain/RUNBOOK.md` and `docs/proweleu-brain/ARCHITECTURE.md`.
+
 ## Quick curl tests (backend)
 
 - Health

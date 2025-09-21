@@ -7,6 +7,8 @@ description: Codex CLI rules and context; AGENTS.md is the source of truth.
 context:
   - AGENTS.md
   - README.md
+  - docs/proweleu-brain/README.md
+  - docs/proweleu-brain/RUNBOOK.md
 
 rules:
   - Follow Non-Negotiables in AGENTS.md §1.
@@ -26,6 +28,7 @@ workspace:
     - client/
     - server/
     - docs/
+    - proweleu-brain/
     - AGENTS.md
 
 task_templates:
@@ -55,6 +58,12 @@ task_templates:
       - Build system+context prompt
       - Enforce JSON schema from AGENTS.md §5.1
       - Use vLLM OpenAI-compatible endpoint
+  - title: proweleu-brain compose
+    path: proweleu-brain/
+    checklist:
+      - Add docker-compose for Mongo, Redis, gateway, rag, llm, mcp
+      - Add healthchecks and depends_on
+      - Auto-index knowledge on startup
 
 acceptance_checks:
   - Unit tests for DTO validators and JSON schema pass
@@ -69,4 +78,3 @@ logging:
 security:
   secrets_in_code: false
   env_required: true
-

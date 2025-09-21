@@ -29,7 +29,8 @@
 ## 2) Tech & Environment
 
 - **Frontend:** React + Vite + TypeScript
-- **Backend:** Node.js + Express + TypeScript
+- **Backend:** Node.js + Express + TypeScript (monolith in `server/`)
+- **Microservices (optional dev stack):** `proweleu-brain/` with API Gateway (Node), RAG (FastAPI), LLM (FastAPI), MCP tools (Node)
 - **Data:** MongoDB (OLTP) + **Atlas Vector Search** for embeddings  [oai_citation:4‡MongoDB](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-overview/?utm_source=chatgpt.com)
 - **LLM:** vLLM OpenAI-compatible endpoint (or TGI)  [oai_citation:5‡VLLM Documentation](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html?utm_source=chatgpt.com)
 - **Agent:** Codex CLI (local)  [oai_citation:6‡OpenAI Developers](https://developers.openai.com/codex/cli/?utm_source=chatgpt.com)
@@ -72,6 +73,7 @@ AI-MarketTracker/
 │  └─ .env.example
 ├─ docs/                       # Keep lightweight until endpoints stabilize
 │  └─ (optional future) ARCHITECTURE.md
+├─ proweleu-brain/             # Backend-first microservices scaffold (Gateway + RAG + LLM + MCP)
 └─ AGENTS.md                   # THIS FILE (rules & context for Codex)
 
 ---
@@ -156,6 +158,7 @@ Options symbol format reference (underlying + YYMMDD + C/P + strike×1000).  ￼
 - Default to the Polygon MCP server for tool calls. It exposes Polygon APIs as MCP tools and is actively maintained/experimental.  ￼
 - If a needed endpoint isn’t exposed, call Polygon REST directly through our adapter.
 - Normalize all responses to our DTOs before passing to RAG/LLM.
+- For local dev, `proweleu-brain/apps/mcp-polygon` provides a stub with Redis/in-memory cache. Swap to official MCP (HTTP transport) by proxying through this service or wiring the gateway directly.
 
 ⸻
 
@@ -226,6 +229,9 @@ Task: LLM deep path
 - Evaluator (ex-post) to label outcomes and feed fine-tune sets
 - Frontend: Ideas page (SSE), History, Dashboard (leaders/ETFs/internals)
 
+Notes
+- See `docs/proweleu-brain/` for microservices runbook and architecture. The microservices stack is additive and must not drift the contracts defined here.
+
 ⸻
 
 ## 12) Quick Reference (Docs & Formats)
@@ -253,4 +259,3 @@ GET /v3/reference/options/contracts/{options_ticker}  (Polygon)  ￼
 ```
 
 Keep this file updated as endpoints mature. End of AGENTS.md.
-
