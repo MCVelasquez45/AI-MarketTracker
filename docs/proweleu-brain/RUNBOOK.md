@@ -105,3 +105,25 @@ curl -s -X POST http://localhost:8001/retrieve \
  -H "content-type: application/json" \
  -d '{"query":"zero dte 12-20 delta macro gate and monitoring","top_k":6}' | jq
 ```
+
+## Batch ingest (module + CLI + API)
+You can ingest a folder of `.md`/`.txt` files using the built-in CLI:
+
+```
+cd proweleu-brain/apps/rag-service
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python ingest_folder.py --root ../../docs/proweleu-brain/knowledge --tags 0DTE rules spx
+```
+
+Or via the FastAPI endpoint:
+
+```
+curl -s -X POST http://127.0.0.1:8001/ingest \
+ -H "content-type: application/json" \
+ -d '{
+  "docs":[
+    {"doc_id":"zero-dte-strategy.md","text":"'"'"$(cat docs/proweleu-brain/knowledge/zero-dte-strategy.md)'"'"","tags":["0DTE","rules"]}
+  ]
+}' | jq
+```

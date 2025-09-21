@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import List
 from pymongo import MongoClient
 from sentence_transformers import SentenceTransformer
+from routes_rag import router as ingest_router
 
 MONGODB_URI = os.getenv("MONGODB_URI")
 AI_DB = os.getenv("MONGO_AI_DB", "ai_db")
@@ -16,6 +17,7 @@ chunks = ai_db["chunks"]
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 app = FastAPI()
+app.include_router(ingest_router, prefix="")
 
 
 class DocIn(BaseModel):
@@ -76,4 +78,3 @@ def retrieve(inp: RetrieveIn):
     return {"context": ctx.strip(), "citations": cites}
 
 # run: `uvicorn main:app --reload --port 8001`
-
