@@ -1,0 +1,10 @@
+{
+  "name": "ai-markettracker-root",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "embed:all": "node proweleu-brain/tools/index-all-docs.mjs",
+    "embed:all:confirm": "npm run -s embed:all && echo '✅ Embedded all repo docs'"
+  }
+}
+
