@@ -75,5 +75,5 @@ def retrieve(inp: RetrieveIn):
         cites.append(f"{d['doc_id']}#{d['chunk_id']}")
     return {"context": ctx.strip(), "citations": cites}
 
-# run: uvicorn main:app --reload --port 8001
+# run: `uvicorn main:app --reload --port 8001`
 

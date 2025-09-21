@@ -3,6 +3,16 @@
 ## Prerequisites
 - MongoDB running (local or Atlas). For local dev: `MONGODB_URI=mongodb://127.0.0.1:27017`
 - Redis running for MCP cache: `REDIS_URL=redis://127.0.0.1:6379`
+
+Quick start Redis (choose one):
+- Homebrew (macOS):
+  - `brew install redis`
+  - `brew services start redis`
+  - Verify: `redis-cli ping` → `PONG`
+- Docker:
+  - `docker run -d --name redis -p 6379:6379 redis:7`
+  - Verify: `docker logs redis` and `redis-cli -h 127.0.0.1 ping`
+Note: If Redis is not running, the MCP service now falls back to an in-memory TTL cache automatically.
 - Python 3.10+ and Node 18+
 
 ## Environment setup

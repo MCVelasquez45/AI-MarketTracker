@@ -73,5 +73,5 @@ async def completion_stream(inp: ChatIn):
     gen = stream_openai(prompt) if (PROVIDER == "openai" and client) else stream_stub()
     return StreamingResponse(gen, media_type="text/event-stream")
 
-# run: uvicorn main:app --reload --port 8002
+# run: `
 
