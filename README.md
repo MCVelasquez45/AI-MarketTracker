@@ -152,6 +152,65 @@ cd server && npm run dev
 cd client && npm run dev
 
 ```
+
+## Quick curl tests (backend)
+
+- Health
+
+```bash
+curl -s http://localhost:3001/health | jq
+```
+
+- RAG: index sample docs
+
+```bash
+curl -s -X POST http://localhost:3001/api/rag/index \
+ -H "content-type: application/json" \
+ -d '{
+  "docs":[
+    {"doc_id":"zero-dte.md","text":"Only sell 0DTE options between 12–20 delta. Max size 5%."},
+    {"doc_id":"risk.md","text":"Stand down on FOMC/CPI days unless hedged."},
+    {"doc_id":"checklist.md","text":"Verify RSI, MACD, VWAP before entries."}
+  ],
+  "chunk_size": 400
+}' | jq
+```
+
+- RAG: retrieve
+
+```bash
+curl -s -X POST http://localhost:3001/api/rag/retrieve \
+ -H "content-type: application/json" \
+ -d '{"query":"0DTE rules delta 12-20 and event risk","top_k":6}' | jq
+```
+
+- Recommendation (SSE stream stub)
+
+```bash
+curl -N -X POST http://localhost:3001/api/recommendations/stream \
+ -H "content-type: application/json" \
+ -d '{"message":"Today\'s 0DTE plan for SPX with delta 12–20 if no macro risk","prefetch":true}'
+```
+
+- Persist a recommendation
+
+```bash
+curl -s -X POST http://localhost:3001/api/recommendations \
+ -H "content-type: application/json" \
+ -d '{
+  "sessionDate":"2025-09-21","ticker":"SPX","strategy":"0DTE_SELL_PUT",
+  "deltaTarget":0.18,"expiry":"2025-09-21","indicators":{"RSI":63.8},
+  "docs":["zero-dte.md#p2"],"confidence":0.64,"status":"OPEN","rationale":"short text"
+}' | jq
+```
+
+- Record outcome
+
+```bash
+curl -s -X POST http://localhost:3001/api/recommendations/outcome \
+ -H "content-type: application/json" \
+ -d '{"recId":"<PASTE_ID>","outcome":"WIN","pnl":85,"notes":"expired worthless"}' | jq
+```
 ⸻
 
 🤝 Contributing
@@ -237,4 +296,3 @@ For more, see `docs/ENDPOINTS.md`.
 - Wire Polygon MCP + REST fallback and normalization adapter.
 - Implement orchestrator logic for SPX 20→12 delta candidate selection.
 - Add RAG retriever (Atlas Vector Search) and vLLM deep path enforcing the JSON schema in `AGENTS.md §5.1`.
-
