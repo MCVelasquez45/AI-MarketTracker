@@ -138,6 +138,19 @@ make embed DOCS=../../docs/proweleu-brain/knowledge  # batch-embed knowledge fil
 make search                    # quick retrieval sanity check
 ```
 
+## Embed ALL repo docs (Markdown/Text)
+Use the top-level helper to ingest all relevant docs across the repo (README.md, AGENTS.md, docs/**/*.md, proweleu-brain/**/*.md, client/README.md):
+
+```
+node proweleu-brain/tools/index-all-docs.mjs
+```
+
+Optionally, set a custom ingest URL:
+
+```
+RAG_INGEST_URL=http://localhost:8001/ingest node proweleu-brain/tools/index-all-docs.mjs
+```
+
 ## Atlas Vector Search index (chunks/vector)
 Ensure your Atlas index matches the stored vector field and dims:
 
