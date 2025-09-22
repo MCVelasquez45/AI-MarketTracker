@@ -5,6 +5,8 @@
   "scripts": {
     "embed:all": "node proweleu-brain/tools/index-all-docs.mjs",
     "embed:all:confirm": "npm run -s embed:all && echo '✅ Embedded all repo docs'"
+  },
+  "dependencies": {
+    "globby": "^13.2.2"
   }
 }
-
